@@ -6,3 +6,7 @@ The Job Shop Scheduling Problem (JSSP) is a classic NP-hard problem. This paper 
 Pytorch 1.6
 
 Gym 0.17.3
+## Reproducing
+To reproduce the result in the paper, first clone the whole repo:
+
+git clone https://github.com/WenquanZ12/GT-PPO
