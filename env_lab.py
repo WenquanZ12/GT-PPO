@@ -134,7 +134,7 @@ from mb_agg import *
 import torch
 from agent_utils import select_action
 from agent_utils import greedy_select_action
-from models.actor_critic import ActorCritic
+from models.graph_trans import GT
 
 torch.manual_seed(configs.torch_seed)
 if torch.cuda.is_available():
@@ -142,7 +142,7 @@ if torch.cuda.is_available():
 device = torch.device(configs.device)
 
 # define network
-actor_critic = GT(n_j=n_j,
+gt = GT(n_j=n_j,
                            n_m=n_m,
                            num_layers=configs.num_layers,
                            learn_eps=False,
