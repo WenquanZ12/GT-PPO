@@ -4,17 +4,6 @@ from uniform_instance_gen import uni_instance_gen1
 from Params import configs
 import time
 
-def generate_fuzzy_processing_times(n_j, n_m, low, high):
-    """ 生成模糊加工时间 (Triangular Fuzzy Numbers) """
-    fuzzy_dur = np.zeros((n_j, n_m, 3))  # 每个加工时间是一个三元组
-    for i in range(n_j):
-        for j in range(n_m):
-            mid = np.random.randint(low, high + 1)  # 最可能值
-            low_bound = max(low, mid - np.random.randint(1, 10))  # 生成最小值
-            high_bound = min(high, mid + np.random.randint(1, 10))+mid  # 生成最大值
-            fuzzy_dur[i, j] = [low_bound, mid, high_bound]
-    return fuzzy_dur
-
 # 设定参数
 n_j = 200  # 任务数
 n_m = 50   # 机器数
@@ -28,7 +17,7 @@ env = FuzzySJSSP(n_j=n_j, n_m=n_m)
 
 # 生成模糊加工时间
 t1 = time.time()
-fuzzy_dur = generate_fuzzy_processing_times(n_j, n_m, low, high)
+fuzzy_dur = uni_instance_gen1(n_j, n_m, low, high)
 
 # 生成机器分配信息
 mch = np.random.randint(1, n_m + 1, size=(n_j, n_m))
