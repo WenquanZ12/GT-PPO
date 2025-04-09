@@ -11,7 +11,7 @@ def generate_fuzzy_processing_times(n_j, n_m, low, high):
         for j in range(n_m):
             mid = np.random.randint(low, high + 1)  # 最可能值
             low_bound = max(low, mid - np.random.randint(1, 10))  # 生成最小值
-            high_bound = min(high, mid + np.random.randint(1, 10))  # 生成最大值
+            high_bound = min(high, mid + np.random.randint(1, 10))+mid  # 生成最大值
             fuzzy_dur[i, j] = [low_bound, mid, high_bound]
     return fuzzy_dur
 
