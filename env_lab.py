@@ -1,124 +1,3 @@
-import numpy as np
-from JSSP_Env import FuzzySJSSP
-from uniform_instance_gen import uni_instance_gen1
-from Params import configs
-import time
-
-# 设定参数
-n_j = 200  # 任务数
-n_m = 50   # 机器数
-low = 1
-high = 99
-SEED = 11
-np.random.seed(SEED)
-
-# 初始化环境
-env = FuzzySJSSP(n_j=n_j, n_m=n_m)
-
-# 生成模糊加工时间
-t1 = time.time()
-fuzzy_dur = uni_instance_gen1(n_j, n_m, low, high)
-
-# 生成机器分配信息
-mch = np.random.randint(1, n_m + 1, size=(n_j, n_m))
-
-# 打印模糊加工时间
-print("Fuzzy Durations (low, mid, high):")
-print(fuzzy_dur)
-
-print("Machine Assignments:")
-print(mch)
-
-# 选择模糊数的处理方式
-def get_deterministic_time(fuzzy_time, method="mid"):
-    """ 从模糊加工时间中提取确定性加工时间 """
-    if method == "mid":
-        return fuzzy_time[:, :, 1]  # 取中值
-    elif method == "random":
-        return np.random.uniform(fuzzy_time[:, :, 0], fuzzy_time[:, :, 2])  # 随机采样
-    else:
-        raise ValueError("Invalid method! Use 'mid' or 'random'.")
-
-# 选择使用模糊数的方法
-deterministic_dur = get_deterministic_time(fuzzy_dur, method="mid")
-
-# 重置环境
-data = (deterministic_dur, mch)
-_, _, omega, mask = env.reset(data)
-
-# 运行调度
-rewards = [-env.initQuality]
-while True:
-    action = np.random.choice(omega[~mask])  # 选择可行动作
-    adj, _, reward, done, omega, mask = env.step(action)
-    rewards.append(reward)
-    if env.done():
-        break
-
-t2 = time.time()
-makespan = sum(rewards) - env.posRewards
-print(f"Total makespan: {makespan}")
-print(f"Execution time: {t2 - t1:.2f} seconds")
-
-# np.save('sol', env.opIDsOnMchs // n_m)
-# np.save('jobSequence', env.opIDsOnMchs)
-# np.save('testData', data)
-# print(env.opIDsOnMchs // n_m + 1)
-# print(env.step_count)
-# print(t)
-# print(np.concatenate((fea, data[1].reshape(-1, 1)), axis=1))
-# print()
-# print(env.adj)
-
-
-'''# rtools solution
-from ortools_baseline import MinimalJobshopSat
-data = uni_instance_gen1(n_j=n_j, n_m=n_m, low=low, high=high)
-# print(data)
-times_rearrange = np.expand_dims(data[0], axis=-1)
-machines_rearrange = np.expand_dims(data[1], axis=-1)
-data = np.concatenate((machines_rearrange, times_rearrange), axis=-1)
-result = MinimalJobshopSat(data.tolist())
-print(result)'''
-
-'''# run solution to test env
-from ortools_baseline import MinimalJobshopSat
-np.random.seed(SEED)
-data = uni_instance_gen1(n_j=n_j, n_m=n_m, low=low, high=high)
-times_rearrange = np.expand_dims(data[0], axis=-1)
-machines_rearrange = np.expand_dims(data[1], axis=-1)
-data2ortools = np.concatenate((machines_rearrange, times_rearrange), axis=-1)
-opt_val, sol = MinimalJobshopSat(data2ortools.tolist())
-steps_basedon_sol = []
-for i in range(n_m):
-    get_col_position_unsorted = np.argwhere(data[-1] == (i+1))
-    get_col_position_sorted = get_col_position_unsorted[sol[i]]
-    sol_i = sol[i] * n_m + get_col_position_sorted[:, 1]
-    steps_basedon_sol.append(sol_i)
-
-steps_basedon_sol = np.asarray(steps_basedon_sol).tolist()
-for m in range(n_m):
-    steps_basedon_sol[m].append(0)
-
-c = 0
-adj, fea, omega, mask = env.reset(data)
-rewards = [- env.initQuality]
-while not env.done():
-    for m in range(n_m):
-        for t in range(steps_basedon_sol[m][-1], n_j):
-            if steps_basedon_sol[m][t] in env.omega:
-                adj, fea, reward, done, omega, mask = env.step(steps_basedon_sol[m][t])
-                rewards.append(reward)
-                steps_basedon_sol[m][-1] += 1
-                c += 1
-            else:
-                break
-print(rewards)
-makespan = sum(rewards) - env.posRewards
-print(makespan)
-print(opt_val)'''
-
-'''# Test network
 from mb_agg import *
 import torch
 from agent_utils import select_action
@@ -177,8 +56,13 @@ makespan = sum(rewards) - env.posRewards
 print(makespan)
 print(env.posRewards)
 print(env.opIDsOnMchs)'''
+# np.save('sol', env.opIDsOnMchs // n_m)
+# np.save('jobSequence', env.opIDsOnMchs)
+# np.save('testData', data)
+# print(env.opIDsOnMchs // n_m + 1)
+# print(env.step_count)
+# print(t)
+# print(np.concatenate((fea, data[1].reshape(-1, 1)), axis=1))
+# print()
+# print(env.adj)
 
-'''# Test random instances
-for _ in range(3):
-    times, machines = uni_instance_gen1(n_j=configs.n_j, n_m=configs.n_m, low=configs.low, high=configs.high)
-    print(times)'''
